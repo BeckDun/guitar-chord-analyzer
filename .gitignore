@@ -1,0 +1,47 @@
+# Cabal build artifacts
+dist/
+dist-newstyle/
+cabal.project.local
+cabal.project.local~
+.ghc.environment.*
+
+# Stack build artifacts (if you ever use Stack)
+.stack-work/
+stack.yaml.lock
+
+# Haskell Program Coverage
+.hpc/
+*.tix
+
+# GHCi files
+.ghci
+*.hi
+*.o
+*.dyn_hi
+*.dyn_o
+
+# Temporary files
+*~
+*.swp
+*.swo
+.DS_Store
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.iml
+.history/
+*.code-workspace
+.hie/
+.vscode-server/
+
+# Tags
+TAGS
+tags
+
+# Local configuration
+.envrc
+.direnv/
+
+# Documentation build artifacts
+docs/_build/
