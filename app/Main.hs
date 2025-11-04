@@ -1,4 +1,6 @@
 module Main where
 
+import Fretboard (runFretboard)
+
 main :: IO ()
-main = putStrLn "Hello, Haskell!"
+main = runFretboard
