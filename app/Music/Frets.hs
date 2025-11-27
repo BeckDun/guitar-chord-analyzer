@@ -4,6 +4,7 @@ module Music.Frets
   , standardTuning
   , noteAt
   , notesFromShape
+  , recognizeChordFromShape
   ) where
 
 import Music.Note
