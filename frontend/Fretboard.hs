@@ -67,7 +67,29 @@ drawWorld cfg st =
   Pictures
     [ drawFretboard cfg
     , drawSelectedNotes cfg st
+    , drawChordLabel cfg st
     ]
+
+drawChordLabel :: FretboardConfig -> GUIState -> Picture
+drawChordLabel cfg st = 
+  let 
+        shape = reverse (selectedFrets st)
+      
+        chordText = case recognizeChordFromShape shape of
+         Just (root, quality) -> show root ++ " " ++ quality
+         Nothing              -> "Unknown chord"
+      
+      -- Position below the fretboard
+        bottomY = -(fromIntegral (numStrings cfg - 1) * stringSpacing cfg) / 2
+        boxY = bottomY - 70
+  in 
+      Translate 0 boxY $ Pictures
+        [ Color (greyN 0.9) $ rectangleSolid 200 40   -- background
+        , Translate (-80) (-8)
+            $ Scale 0.2 0.2
+            $ Color black
+            $ Text chordText
+        ]
 
 
 -- Draw Fretboard
