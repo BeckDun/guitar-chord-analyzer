@@ -15,7 +15,7 @@ data GUIState = GUIState
   }
 
 initialState :: GUIState
-initialState = GUIState (replicate 6 Nothing)
+initialState = GUIState (replicate 6 (Just 0))
 
 
 
