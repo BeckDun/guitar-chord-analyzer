@@ -15,9 +15,32 @@ data GUIState = GUIState
   }
 
 initialState :: GUIState
-initialState = GUIState (replicate 6 (Just 0))
+initialState = GUIState (replicate 6 Nothing)
 
+drawMuteButtons :: FretboardConfig -> GUIState -> Picture
+drawMuteButtons cfg st =
+  let
+      startX = -400
+      buttonX = startX - 80  -- left of the nut
+      topY = fromIntegral (numStrings cfg - 1) * stringSpacing cfg / 2
+  in Pictures
+       [ let y = topY - fromIntegral i * stringSpacing cfg
+             isMuted = fret == Nothing
+         in Translate buttonX y $ drawMuteButton isMuted
+       | (i, fret) <- zip [0..] (selectedFrets st)
+       ]
 
+drawMuteButton :: Bool -> Picture
+drawMuteButton isMuted =
+  let col = if isMuted then red else black
+      thickness = 2
+      -- Draw thick X using polygons
+      line1 = Polygon [ (-10, -8), (-8, -10), (10, 8), (8, 10) ]
+      line2 = Polygon [ (-10, 8), (-8, 10), (10, -8), (8, -10) ]
+  in Pictures
+       [ Color col line1
+       , Color col line2
+       ]
 
 --GUI Config
 data FretboardConfig = FretboardConfig
@@ -68,6 +91,7 @@ drawWorld cfg st =
     [ drawFretboard cfg
     , drawSelectedNotes cfg st
     , drawChordLabel cfg st
+    , drawMuteButtons cfg st
     ]
 
 drawChordLabel :: FretboardConfig -> GUIState -> Picture
@@ -205,15 +229,42 @@ drawBox note = Pictures
 
 handleEvent :: FretboardConfig -> Event -> GUIState -> GUIState
 handleEvent cfg (EventKey (MouseButton LeftButton) Down _ mousePos) st =
-  case clickedFretAndString cfg mousePos of
-    Just (stringIdx, fretIdx) ->
+  case clickedMuteButton cfg mousePos of
+    Just stringIdx ->
       let old = selectedFrets st
-          new = replaceIndex stringIdx (Just fretIdx) old
-      in st { selectedFrets = new }
-
-    Nothing -> st
+          current = old !! stringIdx
+          new = case current of
+                  Nothing -> Just 0    -- unmute to open string
+                  Just _  -> Nothing   -- mute the string
+      in st { selectedFrets = replaceIndex stringIdx new old }
+    
+    Nothing ->
+      case clickedFretAndString cfg mousePos of
+        Just (stringIdx, fretIdx) ->
+          let old = selectedFrets st
+              new = replaceIndex stringIdx (Just fretIdx) old
+          in st { selectedFrets = new }
+        Nothing -> st
 
 handleEvent _ _ st = st
+
+
+
+clickedMuteButton :: FretboardConfig -> (Float, Float) -> Maybe Int
+clickedMuteButton cfg (mx, my) =
+  let
+      startX = -400
+      buttonX = startX - 80
+      
+      topY = fromIntegral (numStrings cfg - 1) * stringSpacing cfg / 2
+      stringYs = [ topY - fromIntegral i * stringSpacing cfg
+                 | i <- [0..numStrings cfg - 1]
+                 ]
+      
+      nearButtonX = abs (mx - buttonX) < 15
+      stringHit = lookupWithin 20 my stringYs
+  in
+      if nearButtonX then stringHit else Nothing
 
 
 replaceIndex :: Int -> a -> [a] -> [a]
