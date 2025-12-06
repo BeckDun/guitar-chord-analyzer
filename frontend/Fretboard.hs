@@ -163,13 +163,20 @@ drawSelectedNotes cfg st =
 
              openN = reverse standardTuning !! stringIndex
              note  = noteAt openN fret
-         in Translate x y $
-              Scale 0.12 0.12 $
-              Color red $
-              Text (show note)
+         in Translate x y $ drawBox note
 
        | (stringIndex, Just fret) <- zip [0..] frets
        ]
+
+
+drawBox :: Show a => a -> Picture
+drawBox note = Pictures
+    [ Color red $ rectangleSolid 30 20          -- background box
+    , Translate (-10) (-5)                         -- center the text
+        $ Scale 0.1 0.1
+        $ Color black
+        $ Text (show note)
+    ]
 
 
 --Click detection--
@@ -244,3 +251,5 @@ findFret fretXs mx =
     -- clamp into [0 .. maxFret]
     fret = min fretsPassed maxFret
   in Just fret
+
+  
