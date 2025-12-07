@@ -3,6 +3,7 @@
   
 module Fretboard (runFretboard) where
 
+import Music.Frets (standardTuning, standardTuningPitched, noteAt, recognizeChordFromShape, pitchedNotesFromShape)
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import Music.Note
@@ -43,7 +44,7 @@ defaultConfig = FretboardConfig
   , stringSpacing = 40.0
   , fretSpacing   = 60.0
   , windowWidth   = 1000
-  , windowHeight  = 400
+  , windowHeight  = 600
   }
 
 
@@ -253,7 +254,7 @@ handleEventIO :: FretboardConfig -> Event -> GUIState -> IO GUIState
 handleEventIO cfg (EventKey (MouseButton LeftButton) Down _ mousePos) st
   | clickedPlayButton cfg mousePos = do
       let shape = reverse (selectedFrets st)
-          notes = notesFromShape standardTuning shape
+          notes = pitchedNotesFromShape standardTuningPitched shape
       _ <- forkIO $ playChord (audioState st) 150 notes
       return st
   

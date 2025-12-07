@@ -2,34 +2,39 @@ module Audio
   ( AudioState
   , initAudio
   , closeAudio
-  , playNote
+  , playPitchedNote
   , playChord
   ) where
 
 import qualified SDL
 import qualified SDL.Mixer as Mix
 import Music.Note
-import Control.Monad (forM_, when)
+import Control.Monad (forM_, forM)
 import Control.Concurrent (threadDelay)
 import Data.Map (Map)
 import qualified Data.Map as Map
 
 data AudioState = AudioState
-  { noteSamples :: Map Note Mix.Chunk
+  { noteSamples :: Map Int Mix.Chunk  -- keyed by absolute semitone index
   }
+
+-- All pitched notes needed for guitar (E2 to F#5)
+allGuitarNotes :: [PitchedNote]
+allGuitarNotes = map pitchedNoteFromIndex [28..65]  -- E2=28, F#5=65
 
 initAudio :: IO AudioState
 initAudio = do
   SDL.initialize [SDL.InitAudio]
   Mix.openAudio Mix.defaultAudio 256
   
-  -- Load a sample for each note
-  samples <- mapM loadNoteSample allNotes
-  return $ AudioState (Map.fromList $ zip allNotes samples)
+  samples <- forM allGuitarNotes $ \pnote -> do
+    chunk <- loadNoteSample pnote
+    return (pitchedNoteToIndex pnote, chunk)
+  return $ AudioState (Map.fromList samples)
 
-loadNoteSample :: Note -> IO Mix.Chunk
-loadNoteSample note = do
-  let filename = "audio/" ++ show note ++ ".wav"
+loadNoteSample :: PitchedNote -> IO Mix.Chunk
+loadNoteSample (PitchedNote note octave) = do
+  let filename = "audio/" ++ show note ++ show octave ++ ".wav"
   Mix.load filename
 
 closeAudio :: AudioState -> IO ()
@@ -38,15 +43,17 @@ closeAudio _ = do
   Mix.quit
   SDL.quit
 
-playNote :: AudioState -> Note -> IO ()
-playNote audioSt note =
-  case Map.lookup note (noteSamples audioSt) of
-    Just chunk -> Mix.play chunk >> return ()
-    Nothing    -> return ()
+playPitchedNote :: AudioState -> PitchedNote -> IO ()
+playPitchedNote audioSt pnote =
+  case Map.lookup (pitchedNoteToIndex pnote) (noteSamples audioSt) of
+    Just chunk -> do
+      _ <- Mix.play chunk
+      return ()
+    Nothing -> return ()
 
--- Play notes in sequence with delay (in milliseconds)
-playChord :: AudioState -> Int -> [Note] -> IO ()
+-- Play pitched notes in sequence with delay (in milliseconds)
+playChord :: AudioState -> Int -> [PitchedNote] -> IO ()
 playChord audioSt delayMs notes =
-  forM_ notes $ \note -> do
-    playNote audioSt note
-    threadDelay (delayMs * 1000)  -- threadDelay uses microseconds
+  forM_ notes $ \pnote -> do
+    playPitchedNote audioSt pnote
+    threadDelay (delayMs * 1000)
