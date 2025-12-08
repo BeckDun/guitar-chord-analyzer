@@ -1,5 +1,5 @@
 # guitar-chord-analyzer
-A guitar chord analyzer in Haskell
+A guitar chord analyzer in Haskell. This allows you to visualize different chords on the guitar. 
 
 
 ## Prerequisites
@@ -16,14 +16,9 @@ A guitar chord analyzer in Haskell
 brew install pkg-config sdl2 sdl2_mixer
 ```
 
-After installing, add this to your `~/.zshrc` or `~/.bashrc`:
+After installing, add this to your environment:
 ```bash
 export PKG_CONFIG_PATH="$(brew --prefix sdl2_mixer)/lib/pkgconfig:$(brew --prefix sdl2)/lib/pkgconfig:$PKG_CONFIG_PATH"
-```
-
-Then reload your shell:
-```bash
-source ~/.zshrc  # or source ~/.bashrc
 ```
 
 **Ubuntu/Debian:**
@@ -75,43 +70,9 @@ Run the fretboard GUI:
 cabal run fretboard
 ```
 
-Run the music logic tests:
-```bash
-cabal run music-cli
-```
-
-## Audio Files
-
-Place guitar note samples in the `audio/` directory with the following names:
-- `C.wav`, `Cs.wav`, `D.wav`, `Ds.wav`, `E.wav`, `F.wav`
-- `Fs.wav`, `G.wav`, `Gs.wav`, `A.wav`, `As.wav`, `B.wav`
-
-Note: `s` indicates sharp (e.g., `Cs.wav` is C#)
-
 ## Usage
 
 - Click on the fretboard to select fret positions
 - Click the X buttons on the left to mute/unmute strings
 - The chord name displays below the fretboard
 - Click "Play" to hear the selected notes
-
-## Troubleshooting
-
-### pkg-config not found
-Make sure pkg-config is installed:
-```bash
-# macOS
-brew install pkg-config
-
-# Ubuntu/Debian
-sudo apt-get install pkg-config
-```
-
-### SDL2_mixer not found in pkg-config database (macOS)
-Ensure your `PKG_CONFIG_PATH` is set correctly:
-```bash
-export PKG_CONFIG_PATH="$(brew --prefix sdl2_mixer)/lib/pkgconfig:$(brew --prefix sdl2)/lib/pkgconfig:$PKG_CONFIG_PATH"
-```
-
-### Audio files not found
-Make sure your WAV files are in the `audio/` directory relative to where you run `cabal run fretboard`.

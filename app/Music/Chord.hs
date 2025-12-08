@@ -8,7 +8,7 @@ import Data.Maybe (listToMaybe)
 import Music.Note
 
 {-
-List of chord patterns, can add more chords later on
+List of most common chord patterns -- Max
 -}
 chordPatterns :: [(String, [Int])]
 chordPatterns =
@@ -23,7 +23,7 @@ chordPatterns =
 
 
 {-
-Given a list of notes, selects the chord from the list above that best matches the note intervals from the root
+Given a list of notes, selects the chord from the list above that best matches the note intervals from the root -- Max
 -}
 identifyChord :: [Note] -> Maybe (Note, String)
 identifyChord notes = listToMaybe

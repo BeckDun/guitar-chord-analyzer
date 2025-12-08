@@ -12,12 +12,14 @@ import Audio
 import Control.Concurrent (forkIO)
 
 
--- GUI State
+-- | GUI State: tracks which frets are selected on each string
+--   Nothing = string is muted, Just n = fret n is selected
 data GUIState = GUIState
   { selectedFrets :: [Maybe Int]   -- length 6, Nothing = muted
   , audioState    :: AudioState
   }
 
+-- | Create initial state with all strings muted
 initialState :: AudioState -> GUIState
 initialState audio = GUIState
   { selectedFrets = replicate 6 Nothing
@@ -36,6 +38,7 @@ data FretboardConfig = FretboardConfig
   , windowHeight   :: Int
   }
 
+-- | Configuration for fretboard dimensions and layout
 defaultConfig :: FretboardConfig
 defaultConfig = FretboardConfig
   { numStrings    = 6
@@ -339,6 +342,7 @@ clickedFretAndString cfg (mx, my) =
       (,) <$> stringHit <*> fretHit
 
 
+-- | Find which index in a list is within eps distance of target value
 lookupWithin :: Float -> Float -> [Float] -> Maybe Int
 lookupWithin eps y ys =
   let dists = zip [0..] (map (\p -> abs (p - y)) ys)
